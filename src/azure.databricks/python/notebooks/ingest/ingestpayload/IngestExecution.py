@@ -99,16 +99,22 @@ options = {
     "mergeSchema": "true"
     }
 
+
 #different options for specifying, based on how we save abfss folder hierarchy.
 fileFullPath = f"{rawAbfssPath}/{rawSchemaName}/{tableName}/version={versionNumber}/{loadActionText}/{dateTimeFolderHierarchy}/{tableName}.{rawFileType}"
 print(fileFullPath)
 
-# assuming json,csv, parquet
-df = spark.read \
-    .options(**options) \
-    .format(rawFileType) \
-    .load(fileFullPath)
+state = checkZeroBytes(loadAction=loadAction, filePath=fileFullPath)
 
+if state:
+    # assuming json,csv, parquet
+    df = spark.read \
+        .options(**options) \
+        .format(rawFileType) \
+        .load(fileFullPath)    
+else:
+    # break out of notebook
+    dbutils.notebook.exit({"message": "No new rows to process"})
 # display(df)
 
 # COMMAND ----------
