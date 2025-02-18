@@ -87,6 +87,7 @@
     <Build Include="ingest\Stored Procedures\GetLatestRefreshToken.sql" />
     <Build Include="ingest\Tables\APITokens.sql" />
     <Build Include="ingest\Stored Procedures\SetLatestRefreshToken.sql" />
+    <Build Include="ingest\Stored Procedures\RefreshTokenWaitLogic.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\Script.PostDeployment.sql" />
