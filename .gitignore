@@ -254,5 +254,11 @@ paket-files/
 /Functions/local.settings.json
 /docs
 
+
+# Databricks
 .databricks
 databricks.yml
+
+# Azure Functions Deployment
+funcapp.zip
+publishFunctions
