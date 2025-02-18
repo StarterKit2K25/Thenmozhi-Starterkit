@@ -5,7 +5,14 @@
 			{
 				"name": "Lookup Latest Refresh and Identity Tokens",
 				"type": "Lookup",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Wait to Distribute Refreshes",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -123,8 +130,62 @@
 						}
 					]
 				}
+			},
+			{
+				"name": "Lookup Wait Time for Parallel Refreshes",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderStoredProcedureName": "[ingest].[RefreshTokenWaitLogic]",
+						"storedProcedureParameters": {
+							"DatasetId": {
+								"type": "Int32",
+								"value": {
+									"value": "@pipeline().parameters.DatasetId",
+									"type": "Expression"
+								}
+							}
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "GetSetMetadata",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "Wait to Distribute Refreshes",
+				"type": "Wait",
+				"dependsOn": [
+					{
+						"activity": "Lookup Wait Time for Parallel Refreshes",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": {
+						"value": "@activity('Lookup Wait Time for Parallel Refreshes').output.firstRow.WaitTimeSeconds",
+						"type": "Expression"
+					}
+				}
 			}
 		],
+		"concurrency": 1,
 		"parameters": {
 			"DatasetId": {
 				"type": "int"
